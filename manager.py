@@ -3,6 +3,7 @@ from flask import Flask, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 import redis
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 
@@ -36,6 +37,9 @@ redis_store = redis.StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_POST,d
 
 #创建session对象
 Session(app)
+
+#设置csrf保护
+CSRFProtect(app)
 
 
 @app.route('/')
