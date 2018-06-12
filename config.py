@@ -1,6 +1,6 @@
 # -*-coding:utf-8-*-
 import redis
-
+import logging
 class Config(object):
     # 普通配置
     DEBUG = True
@@ -19,6 +19,10 @@ class Config(object):
     SESSION_USE_SIGNER = True #session签字存储(签字代表秘钥)
     SESSION_REDIS = redis.StrictRedis(REDIS_HOST, REDIS_POST)
     PERMANENT_SESSION_LIFETIME = 3600*24*2 # 设置session有效期
+
+    # 控制日志输出等级
+    LEVEL = logging.ERROR
+
 
 # 开发模式
 class DeveloperConfig(Config):
