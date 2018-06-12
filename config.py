@@ -31,6 +31,7 @@ class DeveloperConfig(Config):
 # 生产模式
 class ProductConfig(Config):
     DEBUG = False
+    LEVEL = logging.ERROR
     pass
 
 #测试模式

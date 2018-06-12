@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 import redis
 from flask_wtf.csrf import CSRFProtect
 from config import config_dict
-from info.modules.index import blueprint
+
 
 # 创建db对象
 db = SQLAlchemy()
@@ -41,7 +41,7 @@ def creat_app(ConfigDict):
 
     # 设置csrf保护
     CSRFProtect(app)
-
+    from info.modules.index import blueprint
     # 注册首页蓝图
     app.register_blueprint(blueprint)
 
