@@ -4,7 +4,7 @@ from flask_script import Manager
 from info import creat_app, db, models
 
 
-app = creat_app('product')
+app = creat_app('develop')
 
 # 设置迁移命令
 manage = Manager(app)
