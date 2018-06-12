@@ -14,5 +14,4 @@ def hello_word():
     # current_app.logger.warn('调试信息')
     # current_app.logger.error('调试信息')
 
-
     return 'hello Word'
