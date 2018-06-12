@@ -12,6 +12,8 @@ from info.modules.index import blueprint
 # 创建db对象
 db = SQLAlchemy()
 
+# 指定redis_store为全局变量
+redis_store = None
 
 def creat_app(ConfigDict):
     # # 日志模块方法的调用
@@ -31,6 +33,7 @@ def creat_app(ConfigDict):
     db.init_app(app)
 
     # 创建redis对象
+    global redis_store
     redis_store = redis.StrictRedis(host=config.REDIS_HOST, port=config.REDIS_POST, decode_responses=True)
 
     # 创建session对象

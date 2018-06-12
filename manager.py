@@ -1,6 +1,4 @@
 # -*-coding:utf-8-*-
-import logging
-from flask import current_app
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from info import creat_app, db
