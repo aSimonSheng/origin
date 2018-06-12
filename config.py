@@ -21,7 +21,7 @@ class Config(object):
     PERMANENT_SESSION_LIFETIME = 3600*24*2 # 设置session有效期
 
     # 控制日志输出等级
-    LEVEL = logging.ERROR
+    LEVEL = logging.DEBUG
 
 
 # 开发模式
