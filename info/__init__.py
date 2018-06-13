@@ -45,6 +45,11 @@ def creat_app(ConfigDict):
     # 注册首页蓝图
     app.register_blueprint(blueprint)
 
+
+    # 注册图片获取蓝图passport
+    from info.modules.passport import passport_bul
+    app.register_blueprint(passport_bul)
+
     return app
 
 #日志文件,作用:用来记录程序的运行过程,比如:调试信息,接口访问信息,异常信息
