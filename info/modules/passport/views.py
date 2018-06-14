@@ -1,11 +1,10 @@
 # -*-coding:utf-8-*-
 import re
 import random
-
 from flask import request, current_app, make_response, json, jsonify
-
-from info import redis_store, constants
+from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
+from info.models import User
 from info.utils.captcha.captcha import captcha
 from info.utils.response_code import RET
 from . import passport_bul
@@ -89,22 +88,78 @@ def get_sms_code():
         return jsonify(errno=RET.DATAERR,errmsg="验证码输入不正确")
 
     # 生成验证码
-    sns_code = '%06d'%random.randint(0, 999999)
+    sms_code = '%06d'%random.randint(0, 999999)
     # 调用云通讯发送
-    print(sns_code)
+    print(sms_code)
     # ccp = CCP()
-    # result = ccp.send_template_sms(mobile, [sns_code, 5], 1)
+    # result = ccp.send_template_sms(mobile, [sms_code, 5], 1)
 
     # if result == -1:
         # return jsonify(errno=RET.THIRDERR, errmsg="验证码发送失败")
 
     try:
-         redis_store.set('sns_code%s'%mobile, sns_code, constants.SMS_CODE_REDIS_EXPIRES)
+         redis_store.set('sms_code:%s'%mobile, sms_code, constants.SMS_CODE_REDIS_EXPIRES)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR,errmsg="短信保存失败")
 
 
     return jsonify(errno=RET.OK,errmsg="发送成功")
+
+# 短信注册
+# 请求路径: /passport/register
+# 请求方式: POST
+# 请求参数: mobile, sms_code,password
+# 返回值: errno, errmsg
+@passport_bul.route('/register', methods=['POST'])
+def register():
+    """
+    获取参数
+    校验参数
+    通过手机悍马取出redis中的验证码
+    判断是否过期
+    判断是否相等
+    判断用户对象,设置属性\保存到数据库
+    返回前端页面
+    :return: 
+    """
+    dict_data = request.json
+    mobile = dict_data.get('mobile')
+    sms_code = dict_data.get('sms_code')
+    password = dict_data.get('password')
+
+    if not all([mobile, sms_code, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不完整")
+
+    try:
+        redis_sms_code = redis_store.get('sms_code:%s'%mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="短信验证码异常")
+
+    if not redis_sms_code:
+        return jsonify(errno=RET.NODATA,errmsg="验证码过期")
+
+    if redis_sms_code != sms_code:
+        return jsonify(errno=RET.DATAERR,errmsg="验证码错误")
+
+    user = User()
+    user.nick_name = mobile
+    user.mobile = mobile
+    #TODO 未加密
+    user.password_hash = password
+
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="用户保存异常")
+
+    return jsonify(errno=RET.OK,errmsg="注册成功")
+
+
+
 
 

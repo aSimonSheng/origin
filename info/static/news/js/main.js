@@ -144,7 +144,29 @@ $(function(){
         }
 
         // 发起注册请求
+        //拼接请求参数
+        var parans =  {
+            'mobile':mobile,
+            'sms_code':smscode,
+            'password':password
+        }
+        //发送注册请求
+        $.ajax({
+            url:'/passport/register',
+            type:'POST',
+            data:JSON.stringify(parans),
+            contentType:'application/json',
+            success:function (resp) {
+                //判断是否注册成功
+                if(resp.errno == "0"){
+                    location.reload()
+                }else {
+                    $('#register-password-err').html(resp.errmsg);
+                    $('#register-password-err').show();
 
+                }
+            }
+        })
     })
 })
 
@@ -207,7 +229,7 @@ function sendSMSCode() {
                         $(".get_code").html('点击获取验证码');
                     }else {
                         num -= 1
-                        $(".get_code").html(num+'秒后点击重新发送');
+                        $(".get_code").html(num+'秒');
                     }
                 },1000)
             }else {
