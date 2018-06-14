@@ -1,6 +1,8 @@
 # -*-coding:utf-8-*-
 import re
 import random
+from datetime import datetime
+
 from flask import request, current_app, make_response, json, jsonify, session
 from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
@@ -169,7 +171,7 @@ def register():
 # 请求参数: mobile,password
 # 返回值: errno, errmsg
 
-@passport_bul.route('/login')
+@passport_bul.route('/login', methods=['POST'])
 def login():
     # 获取参数
     dict_data = request.json
@@ -188,11 +190,11 @@ def login():
         return jsonify(errno=RET.DBERR,errmsg="数据库查询异常")
 
 
-    # 判断用户对象是否存在
     if not user:
         return jsonify(errno=RET.NODATA,errmsg="该用户不存在")
 
     #判断密码
+    # 判断用户对象是否存在
     if not user.check_passowrd(password):
         return jsonify(errno=RET.DATAERR,errmsg="密码不正确")
 
@@ -200,6 +202,8 @@ def login():
     session['user_id'] = user.id
     session['nick_name'] = user.nick_name
     session['mobile'] = user.mobile
+
+    user.last_login = datetime.now()
 
     # 返回前端界面
     return jsonify(errno=RET.OK,errmsg="登录成功")

@@ -9,6 +9,7 @@ class Config(object):
     #数据库配置
     SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@192.168.223.140:3306/information'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
     #redis配置
     REDIS_HOST = '127.0.0.1'
