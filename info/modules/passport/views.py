@@ -1,7 +1,7 @@
 # -*-coding:utf-8-*-
 import re
 import random
-from flask import request, current_app, make_response, json, jsonify
+from flask import request, current_app, make_response, json, jsonify, session
 from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
 from info.models import User
@@ -106,7 +106,9 @@ def get_sms_code():
 
     return jsonify(errno=RET.OK,errmsg="发送成功")
 
-# 短信注册
+
+
+### 短信注册
 # 请求路径: /passport/register
 # 请求方式: POST
 # 请求参数: mobile, sms_code,password
@@ -158,6 +160,51 @@ def register():
         return jsonify(errno=RET.DBERR,errmsg="用户保存异常")
 
     return jsonify(errno=RET.OK,errmsg="注册成功")
+
+
+# 登录界面
+
+# 请求路径: /passport/login
+# 请求方式: POST
+# 请求参数: mobile,password
+# 返回值: errno, errmsg
+
+@passport_bul.route('/login')
+def login():
+    # 获取参数
+    dict_data = request.json
+    mobile = dict_data.get('mobile')
+    password = dict_data.get('password')
+
+    # 校对参数
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR,errmsg="数据不完整")
+
+    # 通过手机号,获取用户对象
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="数据库查询异常")
+
+
+    # 判断用户对象是否存在
+    if not user:
+        return jsonify(errno=RET.NODATA,errmsg="该用户不存在")
+
+    #判断密码
+    if not user.check_passowrd(password):
+        return jsonify(errno=RET.DATAERR,errmsg="密码不正确")
+
+    # 记录登录状态
+    session['user_id'] = user.id
+    session['nick_name'] = user.nick_name
+    session['mobile'] = user.mobile
+
+    # 返回前端界面
+    return jsonify(errno=RET.OK,errmsg="登录成功")
+
+
 
 
 
