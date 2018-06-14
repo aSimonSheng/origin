@@ -120,6 +120,7 @@ $(function(){
             method: "post",
             data: JSON.stringify(params),
             contentType: "application/json",
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
             success: function (resp) {
                 if (resp.errno == "0") {
                     // 刷新当前界面
@@ -175,6 +176,7 @@ $(function(){
             type:'POST',
             data:JSON.stringify(parans),
             contentType:'application/json',
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
             success:function (resp) {
                 //判断是否注册成功
                 if(resp.errno == "0"){
@@ -238,6 +240,7 @@ function sendSMSCode() {
         type:'POST',
         data:JSON.stringify(perans),
         contentType:'application/json',
+        headers:{'X-CSRFToken':getCookie('csrf_token')},
         success:function (resp) {
         // 判断是否请求成功
             if(resp.errno == '0'){

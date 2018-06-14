@@ -5,7 +5,7 @@ from flask import Flask, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 import redis
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from config import config_dict
 
 
@@ -40,7 +40,7 @@ def creat_app(ConfigDict):
     Session(app)
 
     # 设置csrf保护
-    # CSRFProtect(app)
+    CSRFProtect(app)
 
 
     from info.modules.index import blueprint
@@ -52,6 +52,13 @@ def creat_app(ConfigDict):
     from info.modules.passport import passport_bul
     app.register_blueprint(passport_bul)
 
+    # 通过设置请求钩子,after_request,没此请求完成之后,都会走钩子修饰的函数
+    # 设置csrf_tokende 校验机制
+    @app.after_request
+    def after_request(resp):
+        csrf_token = generate_csrf()
+        resp.set_cookie('csrf_token',csrf_token)
+        return resp
     return app
 
 #日志文件,作用:用来记录程序的运行过程,比如:调试信息,接口访问信息,异常信息
