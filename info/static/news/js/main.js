@@ -156,9 +156,9 @@ function generateImageCode() {
     // 生成一个随机字符串
     imageCodeId = generateUUID()
 
-
     //拼接url
     image_url = '/passport/image_code?cur_id='+imageCodeId + '&prcur_id='+ primageCodeId
+
     // 将前端的请求地址改成拼接的目标获取
     $('.get_pic_code').attr('src',image_url)
     primageCodeId = imageCodeId
@@ -185,6 +185,42 @@ function sendSMSCode() {
     }
 
     // TODO 发送短信验证码
+    // 拼接请求参数
+    var perans = {
+        'mobile':mobile,
+        'image_code':imageCode,
+        'image_code_id':imageCodeId
+    }
+//    发送请求
+    $.ajax({
+        url:'/passport/sms_code',
+        type:'POST',
+        data:JSON.stringify(perans),
+        contentType:'application/json',
+        success:function (resp) {
+        // 判断是否请求成功
+            if(resp.errno == '0'){
+                var num = 60;
+                var t = setInterval(function () {
+                    if (num == 1){
+                        $(".get_code").attr("onclick", 'sendSMSSCode()');
+                        $(".get_code").html('点击获取验证码');
+                    }else {
+                        num -= 1
+                        $(".get_code").html(num+'秒后点击重新发送');
+                    }
+                },1000)
+            }else {
+
+                //发送失败
+                alert(resp.errmsg)
+                generateImageCode() //生成图片验证码
+                $(".get_code").attr("onclick", 'sendSMSSCode()');
+            }
+        }
+    })
+
+
 }
 
 // 调用该函数模拟点击左侧按钮

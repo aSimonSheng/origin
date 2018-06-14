@@ -40,7 +40,9 @@ def creat_app(ConfigDict):
     Session(app)
 
     # 设置csrf保护
-    CSRFProtect(app)
+    # CSRFProtect(app)
+
+
     from info.modules.index import blueprint
     # 注册首页蓝图
     app.register_blueprint(blueprint)

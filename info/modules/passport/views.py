@@ -1,11 +1,16 @@
 # -*-coding:utf-8-*-
-from flask import request, current_app
+import re
+import random
+
+from flask import request, current_app, make_response, json, jsonify
 
 from info import redis_store, constants
-from info.constants import IMAGE_CODE_REDIS_EXPIRES
+from info.libs.yuntongxun.sms import CCP
 from info.utils.captcha.captcha import captcha
+from info.utils.response_code import RET
 from . import passport_bul
 
+# 图片验证码请求
 @passport_bul.route('/image_code')
 def get_image_code():
     """
@@ -28,5 +33,78 @@ def get_image_code():
     except Exception as e:
         current_app.logger.error(e)
 
+    response = make_response(image_data)
+    response.headers['Content-Type'] = 'image/jpg'
 
-    return image_data
+    return response
+
+
+
+
+# 短信验证请求
+# 请求路径 /passport.sms_code
+# 请求方法 POST
+# 请求参数
+# 返回值; error, errmag
+@passport_bul.route('/sms_code', methods=['POST'])
+def get_sms_code():
+    """
+    获取参数 request.data json.loads(json)
+    教研参数是否为空
+    验证手机格式
+    通过uuid取出图片中的验证码
+    判断是否过期
+    判断两个图片验证是否相等
+    生成短信验证码
+    调用云通讯发送(手机号,[验证码,有效期],模板id)
+    保存到redis
+    返回前端
+    :return: 
+    """
+    # json_data = request.data
+    # dict_data = json.loads(json_data)
+    dict_data = request.json
+    mobile = dict_data.get('mobile')
+    image_code = dict_data.get('image_code')
+    image_code_id = dict_data.get('image_code_id')
+
+    if not all([mobile, image_code, image_code_id]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不完整")
+
+    # 验证手机号格式
+    if not re.match(r"1[3456789]\d{9}", mobile):
+        #  表示格式错误
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号格式错误")
+
+    try:
+        redis_store_code = redis_store.get('image_code:%s'%image_code_id)
+    except Exception as e:
+        current_app.logger(e)
+        return jsonify(errno=RET.DBERR, errmsg="查找图片验证码失败")
+
+    if not redis_store_code:
+        return jsonify(errno=RET.NODATA,errmsg="验证码过期")
+
+    if image_code.lower() != redis_store_code.lower():
+        return jsonify(errno=RET.DATAERR,errmsg="验证码输入不正确")
+
+    # 生成验证码
+    sns_code = '%06d'%random.randint(0, 999999)
+    # 调用云通讯发送
+    print(sns_code)
+    # ccp = CCP()
+    # result = ccp.send_template_sms(mobile, [sns_code, 5], 1)
+
+    # if result == -1:
+        # return jsonify(errno=RET.THIRDERR, errmsg="验证码发送失败")
+
+    try:
+         redis_store.set('sns_code%s'%mobile, sns_code, constants.SMS_CODE_REDIS_EXPIRES)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="短信保存失败")
+
+
+    return jsonify(errno=RET.OK,errmsg="发送成功")
+
+
