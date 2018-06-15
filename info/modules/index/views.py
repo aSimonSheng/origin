@@ -1,6 +1,6 @@
 # -*-coding:utf-8-*-
-from info import redis_store # 调用全局化的redis_store
-from info.models import User
+from info import redis_store, constants  # 调用全局化的redis_store
+from info.models import User, News
 from info.utils.response_code import RET
 from . import blueprint
 from flask import render_template, current_app, session, jsonify
@@ -18,11 +18,28 @@ def hello_word():
             user = User.query.get(user_id)
         except Exception as e:
             current_app.logger.error(e)
+
+    # 查询数据库,安好点击量,前10 条新闻
+    try:
+        clicl_news = News.query.order_by(News.clicks.desc()).limit(constants.CLICK_RANK_MAX_NEWS).all()
+    except Exception as e:
+        current_app.logger.error(e)
+
+
+    # 将对象列表壮汉成字典列表
+    clicl_news_list = []
+    for news in clicl_news:
+        clicl_news_list.append(news.to_dict())
+
+
+
+
+
     # 返回页面到模板界面
     data = {
         "user_info":user.to_dict() if user else  None
     }
-    return  render_template("news/index.html", data = data)
+    return  render_template("news/index.html", data = data, clicl_news_list=clicl_news_list)
 
 
 
