@@ -11,7 +11,7 @@ from flask import render_template, current_app, session, jsonify, request
 # 请求方式:GET
 # 请求参数:cid, page,per_page
 # 返回值:data数据
-@blueprint.route('/newlist')
+@blueprint.route('/newslist')
 def new_list():
     """
     1,获取参数
@@ -43,7 +43,7 @@ def new_list():
             # 查询
         paginate = News.query.order_by(News.create_time.desc()).paginate(page, per_page, False) #这里获取的是一个分页对象
         # 获取分页中的内容, 总页数, 当前页, 当前页的所有对象
-        totaPage = paginate.pages
+        totalPage = paginate.pages
         currentPage = paginate.page
         items = paginate.items
     except Exception as e:
@@ -51,13 +51,13 @@ def new_list():
         return jsonify(errno=RET.DBERR,errmsg="数据查询失败")
 
     # 将查询的分类对象转成字典
-    newList = []
+    newsList = []
     for new in items:
-        newList.append(new.to_dict())
+        newsList.append(new.to_dict())
 
     # 返回数据
 
-        return jsonify(errno=RET.OK,errmsg="获取数据成功", cid = cid, totaPage = totaPage, currentPage = currentPage, newList = newList)
+    return jsonify(errno=RET.OK,errmsg="获取数据成功", cid = cid, totalPage = totalPage, currentPage = currentPage, newsList = newsList)
 
 
 
