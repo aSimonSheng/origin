@@ -1,6 +1,6 @@
 # -*-coding:utf-8-*-
 from info import redis_store, constants  # 调用全局化的redis_store
-from info.models import User, News
+from info.models import User, News, Category
 from info.utils.response_code import RET
 from . import blueprint
 from flask import render_template, current_app, session, jsonify
@@ -32,14 +32,27 @@ def hello_word():
         clicl_news_list.append(news.to_dict())
 
 
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+
+    category_list = []
+    for cate in categories:
+        category_list.append(cate.to_dict())
+
+
+
 
 
 
     # 返回页面到模板界面
     data = {
-        "user_info":user.to_dict() if user else  None
+        "user_info":user.to_dict() if user else  None,
+        'clicl_news_list':clicl_news_list,
+        'category_list':category_list,
     }
-    return  render_template("news/index.html", data = data, clicl_news_list=clicl_news_list)
+    return  render_template("news/index.html", data = data, )
 
 
 
