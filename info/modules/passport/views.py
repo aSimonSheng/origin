@@ -209,6 +209,20 @@ def login():
     return jsonify(errno=RET.OK,errmsg="登录成功")
 
 
+# 退出登录界面
+# 请求路径:/passport/logout
+# 请求方式 :POST
+# 请求参数 : 无
+# 返回值 : errno, errmsg
+@passport_bul.route('/logout', methods = ["POST"])
+def logout():
+    session.pop('user_id', '')
+    session.pop('nick_name', '')
+    session.pop('mobile', '')
+
+    return  jsonify(errno=RET.OK,errmsg="退出成功")
+
+
 
 
 
