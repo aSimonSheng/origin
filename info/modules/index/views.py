@@ -3,11 +3,66 @@ from info import redis_store, constants  # 调用全局化的redis_store
 from info.models import User, News, Category
 from info.utils.response_code import RET
 from . import blueprint
-from flask import render_template, current_app, session, jsonify
+from flask import render_template, current_app, session, jsonify, request
+
+
+# 首页新闻列表
+# 请求路径:/newslist
+# 请求方式:GET
+# 请求参数:cid, page,per_page
+# 返回值:data数据
+@blueprint.route('/newlist')
+def new_list():
+    """
+    1,获取参数
+    2,校验参数,转换参数类型
+    3,根据条件查询数据
+    4,将查询到的分类对象数据,转换成字典
+    5,返回请求数据
+    :return: 
+    """
+    cid = request.args.get('cid')
+    page = request.args.get('page',1)
+    per_page = request.args.get('per_page', 10)
+
+    # 校验参数,转换参数类型
+    try:
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+        per_page = 10
+
+    # 根据条件查询
+    try:
+        # 判断分类条件编号不为1
+        filter = []
+        if cid != 1:
+            filter.append(News.category_id == cid)
+            # 查询
+        paginate = News.query.order_by(News.create_time.desc()).paginate(page, per_page, False) #这里获取的是一个分页对象
+        # 获取分页中的内容, 总页数, 当前页, 当前页的所有对象
+        totaPage = paginate.pages
+        currentPage = paginate.page
+        items = paginate.items
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="数据查询失败")
+
+    # 将查询的分类对象转成字典
+    newList = []
+    for new in items:
+        newList.append(new.to_dict())
+
+    # 返回数据
+
+        return jsonify(errno=RET.OK,errmsg="获取数据成功", cid = cid, totaPage = totaPage, currentPage = currentPage, newList = newList)
+
 
 
 @blueprint.route('/')
-def hello_word():
+def index():
     # 获取用户编号
     user_id = session.get('user_id')
 

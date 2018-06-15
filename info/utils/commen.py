@@ -1,5 +1,5 @@
 # -*-coding:utf-8-*-
-# 自定义过滤器
+# 全局自定义过滤器
 
 def do_index_filter(index):
     if index == 1:
