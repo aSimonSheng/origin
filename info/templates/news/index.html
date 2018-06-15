@@ -108,7 +108,7 @@
             </div>
             <ul class="rank_list">
                 {% for news in clicl_news_list %}
-                    <li><span class="first">{{ loop.index }}</span><a href="#">势如破竹！人民币再度连闯四道关口 在岸、离岸双双升破6.42</a></li>
+                    <li><span class="{{ loop.index | index_filter }}">{{ loop.index }}</span><a href="#">势如破竹！人民币再度连闯四道关口 在岸、离岸双双升破6.42</a></li>
                 {% endfor %}
 
 

@@ -10,6 +10,8 @@ from config import config_dict
 
 
 # 创建db对象
+from info.utils.commen import do_index_filter
+
 db = SQLAlchemy()
 
 # 指定redis_store为全局变量
@@ -59,6 +61,13 @@ def creat_app(ConfigDict):
         csrf_token = generate_csrf()
         resp.set_cookie('csrf_token',csrf_token)
         return resp
+
+    # 将过滤器添加到模板过滤器列表中
+    app.add_template_filter(do_index_filter, 'index_filter')
+
+
+
+
     return app
 
 #日志文件,作用:用来记录程序的运行过程,比如:调试信息,接口访问信息,异常信息
