@@ -6,4 +6,4 @@ from flask import render_template
 def news_detil(news_id):
 
 
-    return render_template('news/detail.html')
+    return render_template('news/detail.html', data = {})
