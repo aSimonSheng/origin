@@ -105,7 +105,6 @@ def get_sms_code():
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR,errmsg="短信保存失败")
 
-
     return jsonify(errno=RET.OK,errmsg="发送成功")
 
 

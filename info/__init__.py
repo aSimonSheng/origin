@@ -49,6 +49,10 @@ def creat_app(ConfigDict):
     # 注册首页蓝图
     app.register_blueprint(blueprint)
 
+    from info.modules.news import news_bul
+    # 注册news蓝图
+    app.register_blueprint(news_bul)
+
 
     # 注册图片获取蓝图passport
     from info.modules.passport import passport_bul

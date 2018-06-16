@@ -35,13 +35,14 @@ def new_list():
         per_page = 10
 
     # 根据条件查询
-    try:
+
         # 判断分类条件编号不为1
-        filter = []
-        if cid != 1:
-            filter.append(News.category_id == cid)
+    filters = []
+    if cid != '1':
+        filters.append(News.category_id == cid)
             # 查询
-        paginate = News.query.order_by(News.create_time.desc()).paginate(page, per_page, False) #这里获取的是一个分页对象
+    try:
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page, False) #这里获取的是一个分页对象
         # 获取分页中的内容, 总页数, 当前页, 当前页的所有对象
         totalPage = paginate.pages
         currentPage = paginate.page
