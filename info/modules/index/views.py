@@ -1,9 +1,10 @@
 # -*-coding:utf-8-*-
 from info import redis_store, constants  # 调用全局化的redis_store
 from info.models import User, News, Category
+from info.utils.commen import user_login_data
 from info.utils.response_code import RET
 from . import blueprint
-from flask import render_template, current_app, session, jsonify, request
+from flask import render_template, current_app, session, jsonify, request, g
 
 
 # 首页新闻列表
@@ -63,17 +64,9 @@ def new_list():
 
 
 @blueprint.route('/')
+@user_login_data
 def index():
-    # 获取用户编号
-    user_id = session.get('user_id')
 
-    #查询用户对象
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
 
     # 查询数据库,安好点击量,前10 条新闻
     try:
@@ -104,7 +97,7 @@ def index():
 
     # 返回页面到模板界面
     data = {
-        "user_info":user.to_dict() if user else  None,
+        "user_info":g.user.to_dict() if g.user else  None,
         'clicl_news_list':clicl_news_list,
         'category_list':category_list,
     }
