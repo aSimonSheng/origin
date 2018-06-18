@@ -50,11 +50,24 @@
         {% endblock %}
 
 {#        右边部分#}
+    {% block rankBlock %}
         <div class="rank_con fr">
-            {% block rankBlock %}
+            {# 作者信息部分 #}
+            {% block authorBlock %}
 
             {% endblock %}
+
+            <div class="rank_title">
+                <h3>点击排行</h3>
+            </div>
+            <ul class="rank_list">
+
+                {% for news in data.click_news_list %}
+                        <li><span class="{{ loop.index | index_filter }}">{{ loop.index }}</span><a href="#">{{ news.title }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
+    {% endblock %}
 
     </div>
 

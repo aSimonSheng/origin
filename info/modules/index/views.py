@@ -76,9 +76,9 @@ def index():
 
 
     # 将对象列表壮汉成字典列表
-    clicl_news_list = []
+    click_news_list = []
     for news in clicl_news:
-        clicl_news_list.append(news.to_dict())
+        click_news_list.append(news.to_dict())
 
 
     try:
@@ -98,7 +98,7 @@ def index():
     # 返回页面到模板界面
     data = {
         "user_info":g.user.to_dict() if g.user else  None,
-        'clicl_news_list':clicl_news_list,
+        'click_news_list':click_news_list,
         'category_list':category_list,
     }
     return  render_template("news/index.html", data = data, )
